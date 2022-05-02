@@ -34,21 +34,25 @@ interface PostProps {
 
 export default function Post({ post }: PostProps): JSX.Element {
   const router = useRouter();
-  const [readingTime, setReadingTime] = useState(0);
-  useEffect(() => {
-    const teste = [];
-    post.data.content.map(content => {
-      teste.push(...content.heading.split(' '));
-      teste.push(
-        ...RichText.asText(content.body).replaceAll(/(\n)+/g, ' ').split(' ')
-      );
-      return content;
-    });
-    setReadingTime(Math.ceil(teste.length / 200));
-  }, [post.data.content]);
+  const words = post.data.content.reduce((acc, curr) => {
+    return (
+      acc +
+      curr.heading.split(' ').length +
+      RichText.asText(curr.body).replaceAll(/(\n)+/g, ' ').split(' ').length
+    );
+  }, 0);
+
+  const readingTime = Math.ceil(words / 200);
+  const dateFormated = format(
+    new Date(post.first_publication_date),
+    'dd MMM yyyy',
+    {
+      locale: ptBR,
+    }
+  );
 
   if (router.isFallback) {
-    return <div>Carregando...</div>;
+    return <h1>Carregando...</h1>;
   }
 
   return (
@@ -59,7 +63,7 @@ export default function Post({ post }: PostProps): JSX.Element {
         <ul className={styles.info}>
           <li>
             <FiCalendar />
-            {post.first_publication_date}
+            {dateFormated}
           </li>
           <li>
             <FiUser />
@@ -110,15 +114,11 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const response = await prismic.getByUID('post', String(slug), {});
 
   const post = {
-    first_publication_date: format(
-      new Date(response.first_publication_date),
-      'dd LLL uuu',
-      {
-        locale: ptBR,
-      }
-    ),
+    uid: response.uid,
+    first_publication_date: response.first_publication_date,
     data: {
       title: response.data.title,
+      subtitle: response.data.subtitle,
       banner: {
         url: response.data.banner.url,
       },

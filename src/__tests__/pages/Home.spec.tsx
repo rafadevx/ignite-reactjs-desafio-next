@@ -115,8 +115,6 @@ describe('Home', () => {
       getStaticPropsContext
     )) as GetStaticPropsResult;
 
-    console.log('response', response);
-
     expect(response.props.postsPagination.next_page).toEqual(
       postsPaginationReturn.next_page
     );
