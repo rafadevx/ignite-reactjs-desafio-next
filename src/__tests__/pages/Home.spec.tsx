@@ -1,5 +1,3 @@
-
-
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { GetStaticPropsContext } from 'next';
 import { ParsedUrlQuery } from 'querystring';
@@ -116,6 +114,8 @@ describe('Home', () => {
     const response = (await getStaticProps(
       getStaticPropsContext
     )) as GetStaticPropsResult;
+
+    console.log('response', response);
 
     expect(response.props.postsPagination.next_page).toEqual(
       postsPaginationReturn.next_page
